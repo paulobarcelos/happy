@@ -20,7 +20,9 @@ function (
 		var 
 		self = this,
 		container = app.container,
+		startTime,
 		time,
+		runtime,
 		currentRequestUpdate;
 
 		// Set container
@@ -143,13 +145,16 @@ function (
 			var newTime = (new Date()).getTime() * 0.001;
 			var dt = (newTime - time);
 			time = newTime;
-			app.update.apply(app, [dt, time]);
-			app.draw.apply(app, [dt, time]);
+			runtime = time - startTime;
+			app.update.apply(app, [dt, runtime]);
+			app.draw.apply(app, [dt, runtime]);
 		}
 		app.setFPS('auto');
 		app.setup.apply(app);
 		app.onResize.apply(app,[size]);
-		time = (new Date()).getTime() * 0.001;
+		startTime = (new Date()).getTime() * 0.001;
+		time = startTime; 
+		runtime = 0;
 		loop();
 	}
 	return Runner;
