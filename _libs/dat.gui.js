@@ -1,4 +1,4 @@
-define(function(){
+(function(global) {
 
 /**
  * dat-gui JavaScript Controller Library
@@ -3661,5 +3661,14 @@ dat.utils.common),
 dat.dom.dom,
 dat.utils.common);
 
-return dat.GUI;
-});
+  //exports to multiple environments
+  if(typeof define === 'function' && define.amd){ //AMD
+    define(function () { return dat.GUI; });
+  } else if (typeof module !== 'undefined' && module.exports){ //node
+    module.exports = dat.GUI;
+  } else { //browser
+    //use string because of Google closure compiler ADVANCED_MODE
+    /*jslint sub:true */
+    global['GUI'] = dat.GUI;
+  }
+}(this));
