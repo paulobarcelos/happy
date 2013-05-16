@@ -1,6 +1,6 @@
 {
   "name": "happy-toolkit",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": "Paulo Barcelos",
   "description": "Javascript toolkit for creating fun stuff.",
   "homepage": "https://github.com/paulobarcelos/happy",
@@ -10,9 +10,7 @@
     "requirejs": "*",
     "mout": "*",
     "signals": "*",
-    "threejs": "git://github.com/mrdoob/three.js.git",
-    "gl-matrix": "x",
-    "dat-gui": "https://code.google.com/p/dat-gui"
+    "gl-matrix": "*"
   },
   "keywords": [
     "toolkit"
