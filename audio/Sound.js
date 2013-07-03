@@ -22,31 +22,60 @@ function
 		stopped = new Signal();
 
 
-		var play = function(when){
-			scheduledPlayTime = when || audioContext.currentTime;
-			source.noteOn(scheduledPlayTime);
+		var play = function(when, offset, duration){
+			when = when || 0;
+			scheduledPlayTime = audioContext.currentTime + when;
+
+			// Implementation of AudioBufferSourceNode.start() seems 
+			// a bit wonky regarding the default values, hence this
+			// dirty trick to make sure we don't pass in faulty 
+			// undefined parameters
+			if(typeof offset == 'undefined' && typeof duration == 'undefined' ){
+				source.start(scheduledPlayTime);
+			}
+			else if(typeof duration == 'undefined' ){
+				source.start(scheduledPlayTime, offset);
+			}
+			else {
+				source.start(scheduledPlayTime, offset, duration);
+			}
+	
 			played.dispatch(self);
 		}
 		var stop = function(when){
-			scheduledStopTime = when || audioContext.currentTime;;
-			source.noteOff(scheduledStopTime);
-			stopped.dispatch(self);			
+			when = when || 0;
+			scheduledStopTime = audioContext.currentTime + when;
+			source.stop(scheduledStopTime);
+			stopped.dispatch(self);
+
+			refreshSource();	
 		}
 		var refreshSource = function() {
 			// Store current outputs
 			var outputs = [];
+
 			if(rootNode){
-				outputs = rootNode.outputs;
+				outputs = rootNode.outputs.slice();
 				rootNode.disconnectAll();
 			}
 			// Regenerate the source and create a fresh
 			// rootNode from that source
-			source = self.createSource();
+
+			/**
+			 * The self.createSource needs to be implement by
+			 * whatever the interface which is manipulating the 
+			 * sound. @see AudioFile.js -> sound.createSource  for
+			 * an example.
+			 **/
+			if(self.createSource) source = self.createSource();
+			else source = defaultCreateSource();
+			
 			rootNode = new Node(source);
 			
 			// If there were any previous outputs, connect to them
 			for (var i = 0; i < outputs.length; i++) {
 				var output = outputs[i];
+
 				rootNode.connect(output.node, output.outputIndex, output.inputIndex);
 			}
 		}
@@ -106,9 +135,6 @@ function
 		});
 		Object.defineProperty(self, 'refreshSource', {
 			value: refreshSource
-		});
-		Object.defineProperty(self, 'defaultCreateSource', {
-			value: defaultCreateSource
 		});
 		Object.defineProperty(self, 'source', {
 			get: getSource,

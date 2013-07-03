@@ -35,7 +35,7 @@ function(
 			node.handleInputConnection(self, outputIndex, inputIndex);
 			// store the ouputs
 			var connection = new Connection(node, outputIndex, inputIndex);
-			outputs.push(node);
+			outputs.push(connection);
 			// dispatch the signal
 			connected.dispatch(self, node);
 
@@ -62,14 +62,14 @@ function(
 				// hopping it will be implmented in the future
 				nativeNode.disconnect(connection.index); // should be -> nativeNode.disconnect(connection.node.native, connection.index); 
 				// notify the output we are disconnecting from it
-				output.handleInputDisconnection(self);
+				connection.node.handleInputDisconnection(self);
 				// dispatch the signal
 				disconnected.dispatch(self, node);
 			}
 		}
 		var disconnectAll = function () {
 			for (var i = 0; i < outputs.length; i++) {
-				if(outputs[i])disconnect(i);
+				if(outputs[i]) disconnect(outputs[i].node);
 			}
 			outputs = [];
 		}
