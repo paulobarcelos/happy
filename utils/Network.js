@@ -56,6 +56,9 @@ function(
 			request.ontimeout = function(){
 				if(settings.onError) settings.onError.apply(settings.context, [request]);
 			}
+
+			if(settings.responseType) request.responseType = settings.responseType;
+
 			request.open(settings.method, settings.url);
 			for(key in settings.headers){
 				request.setRequestHeader(key, settings.headers[key]);
