@@ -49,7 +49,7 @@ function
 
 			network.ajax({
 				url: options.url,
-				type: 'arraybuffer',
+				responseType: 'arraybuffer',
 				onSuccess: function(request){
 					audioContext.decodeAudioData(
 						request.response, 
