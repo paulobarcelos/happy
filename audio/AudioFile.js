@@ -19,19 +19,23 @@ function
 		sound = new Sound(audioContext),
 		// settable
 		loop = false,
+		loopStart = 0.0,
+		loopEnd = 1.0,
 		gain = 1.0,
 		speed = 1.0,
 		sqrtSpeed = 1.0,
 		// readonly
 		isReady = false,
+		//isPaused = false,
 		duration = 0.0,
+		progress = 0.0,
 		// helpers
-		timeAtspeedModification = 0,
-		progress = 0;
-
-		var getSound = function() {
-			return sound;
-		}
+		//pauseInitialTimeReference,
+		//timeAtPause = 0.0,
+		timeAtSpeedModification = 0.0;
+		
+		
+	
 		var load = function(options){
 			if(!options.url) return;
 			isReady = false;
@@ -40,11 +44,11 @@ function
 			options.onError = options.onError || function(){};
 			options.context = options.context || window;
 
-			var onErrorHandler = function(argument){
-				options.onError.apply(options.context, [argument]);
+			var onErrorHandler = function(argumentArray){
+				options.onError.apply(options.context, argumentArray);
 			}
-			var onSuccessHandler = function(argument){
-				options.onSuccess.apply(options.context, [argument]);
+			var onSuccessHandler = function(argumentArray){
+				options.onSuccess.apply(options.context, argumentArray);
 			}
 
 			network.ajax({
@@ -55,20 +59,62 @@ function
 						request.response, 
 						function(decodedBuffer) {
 							setBuffer(decodedBuffer);
-							onSuccessHandler();
+							onSuccessHandler([self]);
 						}, 
-						onErrorHandler
+						function(errorArgument){
+							onErrorHandler([self, errorArgument]);
+						}
 					);
 				},
-				onError: onErrorHandler
+				onError: function(errorArgument){
+					onErrorHandler([self, errorArgument]);
+				}
 
 			});
+		}
+		/**
+		 * Plays the `sound` object.
+		 *
+		 * @param {Number} [when="0"] Start delay.
+		 * @param {Number} [offset="0"] Normalized offset from the start of the buffer.
+		 * @param {Number} [duration="1 - offset"] Normalized duration of the playback. 
+		 **/
+		var play = function(when, offset, duration){
+			if(typeof when == 'undefined') when = 0;
+			if(typeof offset == 'undefined') offset = 0;
+			if(typeof duration == 'undefined') duration = 1 - offset;
+
+			var offsetInSeconds = buffer.duration * offset;
+			var durationInSeconds = buffer.duration * duration;
+
+			sound.play(when, offsetInSeconds, durationInSeconds);
+
+			//if(typeof pauseInitialTimeReference == 'undefined' ) pauseInitialTimeReference = sound.scheduledPlayTime;
+		}
+		var stop = function(when){
+			if(typeof when == 'undefined') when = 0;
+
+			sound.stop(when);
+
+			//pauseInitialTimeReference = undefined;
+		}
+		/*var pause = function(){
+			timeAtPause = audioContext.currentTime;
+			isPaused = true;
+			stop();
+		}*/
+		var connectSoundRoot = function(node){
+			sound.root.connect(node);
+		}
+		var disconnectSoundRoot = function(node){
+			sound.root.disconect(node);
 		}
 		var setBuffer = function(value){
 			buffer = value;
 			duration = buffer.duration / sqrtSpeed;
-			sound.refreshSource();
 			isReady = true;
+			sound.refreshSource();
+			
 		}
 		var getBuffer = function(){
 			return buffer;
@@ -79,6 +125,20 @@ function
 		}
 		var getLoop = function() {
 			return loop;
+		}
+		var setLoopStart = function(value) {
+			loopStart = value;
+			if(isReady) sound.source.loopStart = loopStart * duration;
+		}
+		var getLoopStart = function() {
+			return loopStart;
+		}
+		var setLoopEnd = function(value) {
+			loopEnd = value;
+			if(isReady) sound.source.loopEnd = loopEnd * duration;
+		}
+		var getLoopEnd = function() {
+			return loopEnd;
 		}
 		var setGain = function(value) {
 			gain = value;
@@ -95,16 +155,19 @@ function
 				duration = buffer.duration / sqrtSpeed;
 				updateProgress();
 				if(audioContext.currentTime < sound.scheduledPlayTime){
-					timeAtspeedModification = sound.scheduledPlayTime;
+					timeAtSpeedModification = sound.scheduledPlayTime;
 				}
 				else{
-					timeAtspeedModification = audioContext.currentTime;
+					timeAtSpeedModification = audioContext.currentTime;
 				}
 					
 			}
 		}
 		var getSpeed = function() {
 			return speed;
+		}
+		var getSound = function() {
+			return sound;
 		}
 		var getIsReady = function() {
 			return isReady;
@@ -117,17 +180,20 @@ function
 				progress = 0.0;
 			}
 			else{
-				var deltaTime = (audioContext.currentTime - timeAtspeedModification) * sqrtSpeed;
-				var deltaProgress = deltaTime / duration;
+				var deltaTime = (audioContext.currentTime - timeAtSpeedModification) * sqrtSpeed;
+				var deltaProgress = (duration) ? deltaTime / duration : 0;
+
 				progress += deltaProgress;
+				console.log(deltaProgress)
 				if(progress > 1) progress = progress - 1;
 			}
 		}
 		var getProgress = function(){
+			updateProgress();
 			return progress;
 		}
 		var onSoundPlayed = function(){
-			timeAtspeedModification = sound.scheduledPlayTime;
+			timeAtSpeedModification = sound.scheduledPlayTime;
 		}
 
 		// Implement compatible sound.createSource function
@@ -135,6 +201,8 @@ function
 			var source = audioContext.createBufferSource();
 			source.buffer = buffer;
 			source.loop = loop;
+			source.loopStart = loopStart * duration;
+			source.loopEnd = loopEnd * duration;
 			source.gain.value = gain;
 			source.playbackRate.value = speed;
 			return source;
@@ -145,9 +213,22 @@ function
 		Object.defineProperty(self, 'load', {
 			value: load
 		});
-		Object.defineProperty(self, 'updateProgress', {
-			value: updateProgress
+		Object.defineProperty(self, 'play', {
+			value: play
 		});
+		Object.defineProperty(self, 'stop', {
+			value: stop
+		});
+		/*Object.defineProperty(self, 'pause', {
+			value: pause
+		});*/
+		Object.defineProperty(self, 'connectSoundRoot', {
+			value: connectSoundRoot
+		});
+		Object.defineProperty(self, 'disconnectSoundRoot', {
+			value: disconnectSoundRoot
+		});
+
 		Object.defineProperty(self, 'sound', {
 			get: getSound
 		});
@@ -160,6 +241,7 @@ function
 		Object.defineProperty(self, 'progress', {
 			get: getProgress
 		});
+
 		Object.defineProperty(self, 'buffer', {
 			get: getBuffer,
 			set: setBuffer
@@ -175,6 +257,14 @@ function
 		Object.defineProperty(self, 'loop', {
 			get: getLoop,
 			set: setLoop
+		});
+		Object.defineProperty(self, 'loopStart', {
+			get: getLoopStart,
+			set: setLoopStart
+		});
+		Object.defineProperty(self, 'loopEnd', {
+			get: getLoopEnd,
+			set: setLoopEnd
 		});
 		
 	}
