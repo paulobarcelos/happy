@@ -11,7 +11,8 @@ function(
 		* @param {Object} settings
 		*	settings.url {String} - URL you are requesting. @default null
 		*	settings.method {String} - Method for the request. @default 'GET'
-		*	settings.context {Object} - Context for the callbacks. @default window
+		*	settings.responseType {String} - Expected response type. @default null
+		*	settings.context {Object} - Context for the callbacks. @default null
 		*	settings.onSuccess {Function} - Callback when call is successfull. @default null
 		*	settings.onError {Function} - Callback when call fails. @default null
 		*	settings.data {String} - URL encoded data string. @default null
@@ -22,7 +23,6 @@ function(
 			if(!settings.url) return;
 			settings.method = settings.method || 'GET';
 			settings.headers = settings.headers || {};
-			settings.context = settings.context || window;
 
 			var request;
 			if (window.XMLHttpRequest) {
