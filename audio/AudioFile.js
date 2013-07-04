@@ -107,7 +107,7 @@ function
 			sound.root.connect(node);
 		}
 		var disconnectSoundRoot = function(node){
-			sound.root.disconect(node);
+			sound.root.disconnect(node);
 		}
 		var setBuffer = function(value){
 			buffer = value;
