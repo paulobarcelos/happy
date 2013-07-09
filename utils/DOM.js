@@ -5,16 +5,27 @@ function(){
 	var DOM = function(){
 		var self = this;
 
-		var hasClass = function (element,cls) {
-			return element.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+		var hasClass = function (element,class) {
+			if(typeof element.classList === 'undefined') return element.className.match(new RegExp('(\\s|^)'+class+'(\\s|$)'));
+			else return element.classList.contains(class)
 		}
-		var addClass = function (element,cls) {
-			if (!this.hasClass(element,cls)) element.className += " "+cls;
+		var addClass = function (element,class) {
+			if(typeof element.classList === 'undefined'){
+				if (!this.hasClass(element,class)) element.className += " "+class;
+			}
+			else{
+				element.classList.add(class)
+			}			
 		}
-		var removeClass = function (element,cls) {
-			if (hasClass(element,cls)) {
-				var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
-				element.className = element.className.replace(reg,' ');
+		var removeClass = function (element,class) {
+			if(typeof element.classList === 'undefined'){
+				if (hasClass(element,class)) {
+					var reg = new RegExp('(\\s|^)'+class+'(\\s|$)');
+					element.className = element.className.replace(reg,' ');
+				}
+			}
+			else{
+				element.classList.remove(class)
 			}
 		}
 		var empty = function(element) {
