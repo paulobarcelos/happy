@@ -29,7 +29,7 @@ function(){
 			}
 		}
 		var empty = function(element) {
-			while (element.hasChildNodes()) element.removeChild(element.lastChild);
+			while (element.lastChild) element.removeChild(element.lastChild);
 		}
 		var measure = function(element){
 			var width = element.offsetWidth;
