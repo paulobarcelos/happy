@@ -13,8 +13,8 @@ function (
 
 	var vendor = new Vendor();
 	var dom = new DOM();
-	var requestAnimationFrame = vendor.validate('requestAnimationFrame');
-	var MutationObserver = vendor.validate('MutationObserver');
+	var requestAnimationFrame = vendor.validateMethod('requestAnimationFrame');
+	var MutationObserver = vendor.validateConstructor('MutationObserver');
 
 	var Runner = function(app){
 		var 
