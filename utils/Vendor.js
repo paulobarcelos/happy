@@ -36,22 +36,51 @@ function(
 			var pascalStandard = pascalCase(standard);
 			context = context || window;
 
-			var valid = context[standard];
+			var name = standard;
+			var valid = context[name];
 			if(typeof valid === "undefined"){
 				for (var i = 0; i < allPrefixes.length; i++) {
-					valid = context[allPrefixes[i] + pascalStandard];
+					name = allPrefixes[i] + pascalStandard;
+					valid = context[name];
 					if(typeof valid !== "undefined") break;
 				};
 			}
 			if(typeof valid === "undefined"){
 				console.log(standard + ' is not implemented.');
+				return;
 			}
-			
-			return valid;
+			return {
+				name: name,
+				context: context
+			}
 		}
 
-		Object.defineProperty(self, 'validate', {
-			value: validate
+		var validateMethod = function(standard, context) {
+			var result = validate(standard, context);
+			if(!result) return;
+			return function () {
+				result.context[result.name].apply(result.context, arguments);
+			}
+		}
+		var validateConstructor = function(standard, context) {
+			var result = validate(standard, context);
+			if(!result) return;
+			return result.context[result.name];
+		}
+		var validateName = function(standard, context) {
+			var result = validate(standard, context);
+			if(!result) return;
+			return result.name; 
+		}
+
+		Object.defineProperty(self, 'validateMethod', {
+			value: validateMethod
+		});
+		Object.defineProperty(self, 'validateConstructor', {
+			value: validateConstructor
+		});
+		Object.defineProperty(self, 'validateName', {
+			value: validateName
 		});
 
 	}
