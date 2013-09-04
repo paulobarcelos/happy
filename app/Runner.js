@@ -140,9 +140,15 @@ function (
 			}
 		}
 
+		// create a high performance timer
+		var getTime;
+		if (window.performance.now) getTime = function() { return window.performance.now() * 0.001; };
+		else if (window.performance.webkitNow) getTime = function() { return window.performance.webkitNow() * 0.001; };
+		else getTime = function() { return new Date().getTime() * 0.001 ; };
+
 		function loop(){
 			currentRequestUpdate(loop);
-			var newTime = (new Date()).getTime() * 0.001;
+			var newTime = getTime();
 			var dt = (newTime - time);
 			time = newTime;
 			runtime = time - startTime;
@@ -152,7 +158,7 @@ function (
 		app.setFPS('auto');
 		app.setup.apply(app);
 		app.onResize.apply(app,[size]);
-		startTime = (new Date()).getTime() * 0.001;
+		startTime = getTime();
 		time = startTime; 
 		runtime = 0;
 		loop();
