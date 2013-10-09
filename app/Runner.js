@@ -83,10 +83,10 @@ function (
 
 		// Fullscreen controls
 		var cancelFullScreen = function(){
-			vendor.validate('cancelFullScreen', document).apply(document);
+			vendor.validateMethod('cancelFullScreen', document).apply(document);
 		}
 		var requestFullScreen = function(){
-			vendor.validate('requestFullScreen', container).apply(container, [Element.ALLOW_KEYBOARD_INPUT]);
+			vendor.validateMethod('requestFullScreen', container).apply(container, [Element.ALLOW_KEYBOARD_INPUT]);
 		}
 		var _isFullscreen = false;
 		app.enterFullscreen = function(){
