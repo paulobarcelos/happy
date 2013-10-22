@@ -142,8 +142,8 @@ function (
 
 		// create a high performance timer
 		var getTime;
-		if (window.performance.now) getTime = function() { return window.performance.now() * 0.001; };
-		else if (window.performance.webkitNow) getTime = function() { return window.performance.webkitNow() * 0.001; };
+		if (window.performance && window.performance.now) getTime = function() { return window.performance.now() * 0.001; };
+		else if (window.performance && window.performance.webkitNow) getTime = function() { return window.performance.webkitNow() * 0.001; };
 		else getTime = function() { return new Date().getTime() * 0.001 ; };
 
 		function loop(){
