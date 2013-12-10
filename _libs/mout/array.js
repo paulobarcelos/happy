@@ -4,6 +4,7 @@ define(function(require){
 //run `node build` instead
 return {
     'append' : require('./array/append'),
+    'collect' : require('./array/collect'),
     'combine' : require('./array/combine'),
     'compact' : require('./array/compact'),
     'contains' : require('./array/contains'),
@@ -12,6 +13,8 @@ return {
     'filter' : require('./array/filter'),
     'find' : require('./array/find'),
     'findIndex' : require('./array/findIndex'),
+    'findLast' : require('./array/findLast'),
+    'findLastIndex' : require('./array/findLastIndex'),
     'flatten' : require('./array/flatten'),
     'forEach' : require('./array/forEach'),
     'indexOf' : require('./array/indexOf'),
@@ -32,8 +35,10 @@ return {
     'remove' : require('./array/remove'),
     'removeAll' : require('./array/removeAll'),
     'shuffle' : require('./array/shuffle'),
+    'slice' : require('./array/slice'),
     'some' : require('./array/some'),
     'sort' : require('./array/sort'),
+    'sortBy' : require('./array/sortBy'),
     'split' : require('./array/split'),
     'toLookup' : require('./array/toLookup'),
     'union' : require('./array/union'),
