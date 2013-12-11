@@ -21,8 +21,9 @@ function (
 		self = this,
 		container = app.container,
 		startTime,
-		time,
-		runtime,
+		lastUpdateTime,
+		runTime,
+		dt,
 		currentRequestUpdate;
 
 		// Set container
@@ -89,7 +90,7 @@ function (
 			vendor.validateMethod('requestFullScreen', container).apply(container, [Element.ALLOW_KEYBOARD_INPUT]);
 		}
 		var _isFullscreen = false;
-		app.enterFullscreen = function(){
+		var enterFullscreen = function(){
 			_isFullscreen = true;
 			requestFullScreen();
 			container.style.position = "fixed";
@@ -102,21 +103,21 @@ function (
 			container.style.maxWidth = "100%";
 			container.style.maxHeight = "100%";
 		}
-		app.exitFullscreen = function(){
+		var exitFullscreen = function(){
 			_isFullscreen = false;
 			container.removeAttribute('style');
 			cancelFullScreen();
 		}
-		app.toggleFullscreen = function(){
-			if(!_isFullscreen) app.enterFullscreen();
-			else app.exitFullscreen();
+		var toggleFullscreen = function(){
+			if(!_isFullscreen) enterFullscreen();
+			else exitFullscreen();
 		}
-		app.isFullscreen = function(){
+		var getIsFullscreen = function(){
 			return _isFullscreen;
 		}
 
-		// FPS control
-		app.setFPS = function(value){
+		// Time functions&  FPS control
+		var setDesiredFPS = function(value){
 			if(value < 0) value = 0;
 			switch(value){
 				case 'auto':
@@ -139,28 +140,74 @@ function (
 					break;
 			}
 		}
-
-		// create a high performance timer
+		var getFPS = function(){
+			return 1/dt;
+		}
 		var getTime;
 		if (window.performance && window.performance.now) getTime = function() { return window.performance.now() * 0.001; };
 		else if (window.performance && window.performance.webkitNow) getTime = function() { return window.performance.webkitNow() * 0.001; };
 		else getTime = function() { return new Date().getTime() * 0.001 ; };
+		var getStartTime = function(){
+			return	startTime;
+		}
+		var getRuntime = function(){
+			return	getTime() - startTime;
+		}
+		var getDeltaTime = function(){
+			return	dt;
+		}
+
+		// Register methods
+		Object.defineProperty(app, 'setDesiredFPS', {
+			value: setDesiredFPS
+		});
+		Object.defineProperty(app, 'enterFullscreen', {
+			value: enterFullscreen
+		});
+		Object.defineProperty(app, 'exitFullscreen', {
+			value: exitFullscreen
+		});
+		Object.defineProperty(app, 'toggleFullscreen', {
+			value: toggleFullscreen
+		});
+		Object.defineProperty(app, 'isFullscreen', {
+			get: getIsFullscreen
+		});
+		Object.defineProperty(app, 'time', {
+			get: getTime
+		});
+		Object.defineProperty(app, 'startTime', {
+			get: getStartTime
+		});
+		Object.defineProperty(app, 'runTime', {
+			get: getRuntime
+		});	
+		Object.defineProperty(app, 'deltaTime', {
+			get: getDeltaTime
+		});		
+		Object.defineProperty(app, 'fps', {
+			get: getFPS
+		});
+
+
+		// Kickoff initial settings
+		setDesiredFPS('auto');
+		app.setup.apply(app);
+		app.onResize.apply(app,[size]);
+		startTime = getTime();
+		lastUpdateTime = startTime; 
+		runTime = 0;
+		dt;
 
 		function loop(){
 			currentRequestUpdate(loop);
 			var newTime = getTime();
-			var dt = (newTime - time);
-			time = newTime;
-			runtime = time - startTime;
-			app.update.apply(app, [dt, runtime]);
-			app.draw.apply(app, [dt, runtime]);
+			dt = (newTime - lastUpdateTime);
+			lastUpdateTime = newTime;
+			var runTime = newTime - startTime;
+			app.update.apply(app, [dt, runTime]);
+			app.draw.apply(app, [dt, runTime]);
 		}
-		app.setFPS('auto');
-		app.setup.apply(app);
-		app.onResize.apply(app,[size]);
-		startTime = getTime();
-		time = startTime; 
-		runtime = 0;
 		loop();
 	}
 	return Runner;

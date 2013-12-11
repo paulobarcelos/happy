@@ -21,11 +21,6 @@ var BaseApp = function(){
 	self.onClick = dummy;
 	self.onDoubleClick = dummy;
 	self.onResize = dummy;
-	self.setFPS = dummy;
-	self.enterFullscreen = dummy;
-	self.exitFullscreen = dummy;
-	self.toggleFullscreen = dummy;
-	self.isFullscreen = dummy;
 }
 return BaseApp
 });
