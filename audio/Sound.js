@@ -42,13 +42,15 @@ function
 	
 			played.dispatch(self);
 		}
-		var stop = function(when){
-			when = when || 0;
+		var stop = function(when, refresh){
+			if(!source) return;
+			if(typeof when == 'undefined') when = 0;
+			if(typeof refresh === 'undefined') refresh = true;
 			scheduledStopTime = audioContext.currentTime + when;
 			source.stop(scheduledStopTime);
 			stopped.dispatch(self);
 
-			refreshSource();	
+			if(refresh) refreshSource();	
 		}
 		var refreshSource = function() {
 			// Store current outputs
@@ -58,6 +60,7 @@ function
 				outputs = rootNode.outputs.slice();
 				rootNode.disconnectAll();
 			}
+
 			// Regenerate the source and create a fresh
 			// rootNode from that source
 

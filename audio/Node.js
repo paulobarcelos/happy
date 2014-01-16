@@ -28,6 +28,13 @@ function(
 		var connect = function(node, outputIndex, inputIndex) {
 			outputIndex = outputIndex || 0;
 			inputIndex = inputIndex || 0;
+
+			// avoid connecting the same node multiple times
+			for (var i = outputs.length - 1; i >= 0; i--) {
+				if(outputs[i].node.id === node.id && outputs[i].outputIndex === outputIndex && outputs[i].inputIndex === inputIndex){
+					return node;
+				}
+			};
 			
 			// connect the native nodes
 			nativeNode.connect(node.native, outputIndex, inputIndex);
@@ -61,6 +68,12 @@ function(
 				// seems a bit useless now, but anyway let's keep it here
 				// hopping it will be implmented in the future
 				nativeNode.disconnect(connection.index); // should be -> nativeNode.disconnect(connection.node.native, connection.index); 
+				
+				// so this a dirty tricky that imediatelly reconnects the
+				// former outputs
+				for (var i = outputs.length - 1; i >= 0; i--) {
+					nativeNode.connect(outputs[i].node.native)
+				}
 				// notify the output we are disconnecting from it
 				connection.node.handleInputDisconnection(self);
 				// dispatch the signal
@@ -68,8 +81,9 @@ function(
 			}
 		}
 		var disconnectAll = function () {
-			for (var i = 0; i < outputs.length; i++) {
-				if(outputs[i]) disconnect(outputs[i].node);
+			var o = outputs.slice();
+			for (var i = 0; i < o.length; i++) {
+				if(o[i]) disconnect(o[i].node);
 			}
 			outputs = [];
 		}

@@ -26,12 +26,11 @@ function
 		sqrtSpeed = 1.0,
 		// readonly
 		isReady = false,
-		//isPaused = false,
+		isPaused = false,
 		duration = 0.0,
 		progress = 0.0,
 		// helpers
-		//pauseInitialTimeReference,
-		//timeAtPause = 0.0,
+		progressAtPause = 0.0,
 		timeAtSpeedModification = 0.0;
 		
 		
@@ -88,21 +87,23 @@ function
 			var durationInSeconds = buffer.duration * duration;
 
 			sound.play(when, offsetInSeconds, durationInSeconds);
-
-			//if(typeof pauseInitialTimeReference == 'undefined' ) pauseInitialTimeReference = sound.scheduledPlayTime;
 		}
 		var stop = function(when){
 			if(typeof when == 'undefined') when = 0;
 
 			sound.stop(when);
-
-			//pauseInitialTimeReference = undefined;
 		}
-		/*var pause = function(){
-			timeAtPause = audioContext.currentTime;
-			isPaused = true;
-			stop();
-		}*/
+		var togglePause = function(){
+			if(isPaused){
+				play(0, progressAtPause);
+			}
+			else{
+				progressAtPause = getProgress();
+				isPaused = true;
+				stop();
+			}
+			
+		}
 		var connectSoundRoot = function(node){
 			sound.root.connect(node);
 		}
@@ -110,6 +111,7 @@ function
 			sound.root.disconnect(node);
 		}
 		var setBuffer = function(value){
+			sound.stop(0, false);
 			buffer = value;
 			duration = buffer.duration / sqrtSpeed;
 			isReady = true;
@@ -184,7 +186,6 @@ function
 				var deltaProgress = (duration) ? deltaTime / duration : 0;
 
 				progress += deltaProgress;
-				console.log(deltaProgress)
 				if(progress > 1) progress = progress - 1;
 			}
 		}
@@ -219,9 +220,9 @@ function
 		Object.defineProperty(self, 'stop', {
 			value: stop
 		});
-		/*Object.defineProperty(self, 'pause', {
-			value: pause
-		});*/
+		Object.defineProperty(self, 'togglePause', {
+			value: togglePause
+		});
 		Object.defineProperty(self, 'connectSoundRoot', {
 			value: connectSoundRoot
 		});
