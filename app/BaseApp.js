@@ -21,6 +21,7 @@ var BaseApp = function(){
 	self.onClick = dummy;
 	self.onDoubleClick = dummy;
 	self.onResize = dummy;
+	self.onReposition = dummy;
 }
 return BaseApp
 });
