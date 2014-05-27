@@ -39,6 +39,17 @@ function(){
 				height: height
 			}
 		}
+		var calculatePosition = function(element) {
+			var curleft = 0;
+			var curtop = 0;
+			if (element && element.offsetParent) {
+				do {
+					curleft += element.offsetLeft;
+					curtop += element.offsetTop;
+				} while (element = element.offsetParent);
+			}
+			return { x: curleft, y: curtop };
+		}
 
 		Object.defineProperty(self, 'hasClass', {
 			value: hasClass
@@ -58,6 +69,10 @@ function(){
 
 		Object.defineProperty(self, 'measure', {
 			value: measure
+		});
+
+		Object.defineProperty(self, 'calculatePosition', {
+			value: calculatePosition
 		});
 	}
 	

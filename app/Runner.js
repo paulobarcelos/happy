@@ -60,12 +60,20 @@ function (
 		
 		// Monitor the object resizing is a bit more complex
 		var size = dom.measure(container);
+		var position = dom.calculatePosition(container);
 		var monitorResize = function(){
 			var newSize = dom.measure(container);
+			var newPosition = dom.calculatePosition(container);
+
 			if(newSize.width != size.width || newSize.height != size.height){
-				app.onResize.apply(app,[newSize]);
+				app.onResize.apply(app,[newSize, newPosition]);
 			}
-			size = newSize;			
+			size = newSize;
+			
+			if(newPosition.x != position.x || newPosition.y != position.y){
+				app.onReposition.apply(app,[newPosition, newSize]);
+			}
+			position = newPosition;
 		}
 		window.addEventListener('resize', monitorResize, false);
 		window.addEventListener('scroll', monitorResize, false);
@@ -193,7 +201,8 @@ function (
 		// Kickoff initial settings
 		setDesiredFPS('auto');
 		app.setup.apply(app);
-		app.onResize.apply(app,[size]);
+		app.onReposition.apply(app,[position, size]);
+		app.onResize.apply(app,[size, position]);
 		startTime = getTime();
 		lastUpdateTime = startTime; 
 		runTime = 0;
