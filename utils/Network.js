@@ -20,7 +20,15 @@ function(
 		**/
 		var ajax = function(settings){
 			if(!settings) return;
-			if(!settings.url) return;
+			if(!settings.url) {
+				if(settings.onError) {
+					settings.onError.apply(
+						settings.context,
+						["No url was provided."]
+					);
+				}
+				return;
+			}
 			settings.method = settings.method || 'GET';
 			settings.headers = settings.headers || {};
 
@@ -38,7 +46,15 @@ function(
 					catch (e) {}
 				}
 			}
-			if(!request) return;
+			if(!request) {
+				if(settings.onError) {
+					settings.onError.apply(
+						settings.context,
+						["Couldn't create request"]
+					);
+				}
+				return;
+			}
 			request.onload = function(){
 				if (request.status === 200) {
 					if(settings.onSuccess) settings.onSuccess.apply(settings.context, [request]);
