@@ -200,10 +200,10 @@ function (
 
 		// Kickoff initial settings
 		setDesiredFPS('auto');
+		startTime = getTime();
 		app.setup.apply(app);
 		app.onReposition.apply(app,[position, size]);
 		app.onResize.apply(app,[size, position]);
-		startTime = getTime();
 		lastUpdateTime = startTime; 
 		runTime = 0;
 		dt;
