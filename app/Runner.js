@@ -196,6 +196,12 @@ function (
 		Object.defineProperty(app, 'fps', {
 			get: getFPS
 		});
+		Object.defineProperty(app, 'position', {
+			get: function(){ return position; }
+		});
+		Object.defineProperty(app, 'size', {
+			get: function(){ return size; }
+		});
 
 
 		// Kickoff initial settings
